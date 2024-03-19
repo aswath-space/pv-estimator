@@ -37,8 +37,8 @@ def prompt_for_location_and_panel_details():
     # Use Nominatim API to convert address to coordinates
     if address_input:
         try:
-        nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&limit=1&q={address_input}"
-        response = requests.get(nominatim_url)
+            nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&limit=1&q={address_input}"
+            response = requests.get(nominatim_url)
             if response.status_code == 200:
                 response_json = response.json()
                 if response_json:
