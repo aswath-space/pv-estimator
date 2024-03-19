@@ -1,14 +1,14 @@
 # Required libraries for the script functionality
 import requests  # For making API requests to the PVGIS API
 import pandas as pd  # For data manipulation and analysis
+import matplotlib.pyplot as plt  # For plotting monthly production data
 import folium  # For creating interactive maps with satellite imagery
 import streamlit as st # Core Streamlit library for creating web apps
-import matplotlib.pyplot as plt  # For plotting monthly production data
 from streamlit_folium import st_folium
 
-#Title section
-st.title('PV Production Estimator')
-repo_url = 'https://github.com/aswath-space/pv-estimator'
+#Title section 
+st.title('PV Production Estimator') 
+repo_url = 'https://github.com/aswath-space/pv-estimator' 
 st.markdown(f'By Aswath Subramanian. You can find the GitHub repo [here]({repo_url}).')
 
 def prompt_for_location_and_panel_details():
@@ -36,29 +36,28 @@ def prompt_for_location_and_panel_details():
 
     # Use Nominatim API to convert address to coordinates
     if address_input:
-        try:
-            nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&limit=1&q={address_input}"
-            response = requests.get(nominatim_url)
-            if response.status_code == 200:
-                response_json = response.json()
-                if response_json:
-                    lat = float(response_json[0]['lat'])
-                    lon = float(response_json[0]['lon'])
-                else:
-                    st.error("Could not find location. Please enter a more specific address.")
-                    return None, None, None
+    try:
+        nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&limit=1&q={address_input}"
+        response = requests.get(nominatim_url)
+        if response.status_code == 200:
+            response_json = response.json()
+            if response_json:
+                lat = float(response_json[0]['lat'])
+                lon = float(response_json[0]['lon'])
             else:
-                st.error(f"Failed to fetch coordinates. HTTP status code: {response.status_code}")
+                st.error("Could not find location. Please enter a more specific address.")
                 return None, None, None
-        except Exception as e:
-            st.error(f"An error occurred while fetching the coordinates: {e}")
+        else:
+            st.error(f"Failed to fetch coordinates. HTTP status code: {response.status_code}")
             return None, None, None
-    else:
+    except Exception as e:
+        st.error(f"An error occurred while fetching the coordinates: {e}")
         return None, None, None
+    else:
+    return None, None, None
 
 
     return lat, lon, panel_watt_peak
-
 
 def display_location_on_map_with_satellite(lat, lon):
     """
@@ -144,12 +143,12 @@ def get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak
     df_monthly = pd.DataFrame(index=range(1, 13))
     df_monthly.index.name = 'Month'
     total_annual_production = 0
-    successful_requests = 0  # To track successful API requests
 
     for i, array_info in enumerate(panels_info, start=1):
         peak_power = array_info['panels'] * panel_watt_peak / 1000  # Convert to kWp
         tilt = array_info['pitch']
         azimuth = array_info['azimuth']
+        
         system_loss = 14 + array_info['shading_loss']  # Base loss + shading loss
         api_url = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc"
         params = {
@@ -171,25 +170,18 @@ def get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak
             monthly_production = [month['E_m'] for month in monthly_data]
             df_monthly[f'Array {i} (Azimuth {azimuth})'] = monthly_production
             total_annual_production += data['outputs']['totals']['fixed']['E_y']
-            successful_requests += 1  # Increment successful request count
         else:
-            # Log each failed API request with specifics to help debugging
-            st.error(f"API request for Array {i} failed with status code {response.status_code}: {response.text}")
-        
-        if successful_requests == 0:
-        # If no API requests were successful, return None to indicate failure
-            return None, None, None, 'Failed to fetch data from PVGIS API'
+            st.error(f'Failed to fetch data for Array {i} (Azimuth {azimuth})')
+            return None, 'Failed to fetch data from PVGIS API'
     
-    # If at least one request was successful, proceed with calculations
     df_monthly['Total'] = df_monthly.sum(axis=1)
     df_monthly.loc['Total per Array'] = df_monthly.drop('Total', axis=1).sum()
     df_monthly_transposed = df_monthly.transpose()
-
     
-    # Display the DataFrame in Streamlit for monthly production comparison
-    # st.write("Monthly Production Comparison:", df_monthly_transposed)
-
-    # Plotting the total monthly PV production for visual analysis
+    # Displaying the DataFrame in Streamlit
+    #st.write("Monthly Production Comparison:", df_monthly_transposed)
+    
+   # Plotting the total monthly PV production for visual analysis
     fig, ax = plt.subplots()
     df_monthly['Total'].plot(kind='bar', ax=ax)
 
@@ -202,6 +194,10 @@ def get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak
     ax.set_title('Total Monthly PV Production')
 
     st.pyplot(fig)
+
+    
+    # Displaying the grand total annual production
+    #st.write(f"Grand Total Annual Production: {total_annual_production} kWh")
     
     # Note: Returning the DataFrame and total annual production is optional unless needed for further processing
     return df_monthly_transposed, total_annual_production
