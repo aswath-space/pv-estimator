@@ -45,8 +45,8 @@ def prompt_for_location_and_panel_details():
                     lat = float(response_json[0]['lat'])
                     lon = float(response_json[0]['lon'])
                 else:
-                st.error("Could not find location. Please enter a more specific address.")
-                return None, None, None
+                    st.error("Could not find location. Please enter a more specific address.")
+                    return None, None, None
             else:
                 st.error(f"Failed to fetch coordinates. HTTP status code: {response.status_code}")
                 return None, None, None
