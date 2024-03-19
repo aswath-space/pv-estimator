@@ -39,18 +39,23 @@ def prompt_for_location_and_panel_details():
         try:
             nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&limit=1&q={address_input}"
             response = requests.get(nominatim_url)
-            response_json = response.json()
-            if response_json:
-                lat = float(response_json[0]['lat'])
-                lon = float(response_json[0]['lon'])
+            if response.status_code == 200:
+                response_json = response.json()
+                if response_json:
+                    lat = float(response_json[0]['lat'])
+                    lon = float(response_json[0]['lon'])
+                else:
+                    st.error("Could not find location. Please enter a more specific address.")
+                    return None, None, None
             else:
-                st.error("Could not find location. Please enter a more specific address.")
+                st.error(f"Failed to fetch coordinates. HTTP status code: {response.status_code}")
                 return None, None, None
         except Exception as e:
             st.error(f"An error occurred while fetching the coordinates: {e}")
             return None, None, None
     else:
         return None, None, None
+
 
     return lat, lon, panel_watt_peak
 
