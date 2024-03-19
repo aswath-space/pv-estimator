@@ -42,7 +42,7 @@ def prompt_for_location_and_panel_details():
             headers = {
                 'User-Agent': 'pv-estimator/1.0 (aswath.subramanian@outlook.com)',  # Replace with your app's name and your contact email
             }
-            response = requests.get(nominatim_urlm headers=headers)
+            response = requests.get(nominatim_url, headers=headers)
             if response.status_code == 200:
                 response_json = response.json()
                 if response_json:
