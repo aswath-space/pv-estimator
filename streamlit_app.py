@@ -38,7 +38,11 @@ def prompt_for_location_and_panel_details():
     if address_input:
         try:
             nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&limit=1&q={address_input}"
-            response = requests.get(nominatim_url)
+            # Include a User-Agent header in your request
+            headers = {
+                'User-Agent': 'pv-estimator/1.0 (aswath.subramanian@outlook.com)',  # Replace with your app's name and your contact email
+            }
+            response = requests.get(nominatim_urlm headers=headers)
             if response.status_code == 200:
                 response_json = response.json()
                 if response_json:
