@@ -54,7 +54,7 @@ def prompt_for_location_and_panel_details():
             st.error(f"An error occurred while fetching the coordinates: {e}")
             return None, None, None
     else:
-        eturn None, None, None
+        return None, None, None
 
 
     return lat, lon, panel_watt_peak
