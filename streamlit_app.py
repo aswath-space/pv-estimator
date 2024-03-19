@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 
 #Title section
 st.title('PV Production Estimator')
-repo_url = 'https://github.com/aswath-space/PV-Production-Estimator'
+repo_url = 'https://github.com/aswath-space/pv-estimator'
 st.markdown(f'By Aswath Subramanian. You can find the GitHub repo [here]({repo_url}).')
 
 def prompt_for_location_and_panel_details():
