@@ -44,4 +44,4 @@ As a master's graduate in sustainable energy, my technical knowledge has signifi
 
 When using or referencing the PV Estimator, attribution to the original work is appreciated.
 
-This project is licensed under the MIT License, allowing for its use and modification under the terms outlined therein.
+This project is licensed under the Apache License 2.0, allowing for its use and modification under the terms outlined therein.
