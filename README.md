@@ -19,6 +19,9 @@ The tool operates with Open Street Map and PVGIS APIs for a basic retrieval of c
     3. A tabular display of production across each array per month. The row and column subtotals correspond to per-month and per-array productions respectively.
     4. A total that is the sum of all production.
 
+### Financial Analysis (IRR)
+This tool includes a simple internal rate of return (IRR) calculator. The default cost per kWp is set to **1000 USD**, which reflects the market average for small PV systems according to IRENA's *Renewable Power Generation Costs in 2022*. The default electricity price is **0.15 USD/kWh** and the lifetime is assumed to be 25 years. These values can be adjusted in the app before computing the IRR.
+
 ### Known limitations of the tool. At least some of these can be fixed within the parameters of open-source software and information:
     1. The PVGIS API can show an error 400, which means the coordinates are in the sea. This is a limitation at the level of PVGIS.
     2. Back-to-back modules are manually entered as individual arrays.
@@ -27,7 +30,7 @@ The tool operates with Open Street Map and PVGIS APIs for a basic retrieval of c
     5. The tool does not calculate or account for the type of inverter(s) used in the system.
     6. The accuracy of location identification is dependent on the OpenStreetMap Nominatim API. In some cases, particularly with less specific addresses or newly developed areas, the geocoding might not accurately reflect the actual location.
     7. The tool relies on external APIs for solar irradiation data, which may not fully capture local microclimates or shading from surrounding structures not accounted for in broad datasets.
-    8. The tool does not currently perform detailed financial analyses, such as calculating tax benefits, depreciation, or varying electricity rates over time, which can significantly affect the financial return of solar investments.
+    8. While the tool provides a basic IRR calculator, it does not perform detailed financial analyses such as calculating tax benefits, depreciation, or varying electricity rates over time. These factors can significantly affect the financial return of solar investments.
     9. The tool assumes a fixed orientation and tilt for solar panels. In reality, adjustable mounting systems can optimize panel angles seasonally, potentially enhancing production.
     10. Long-term maintenance, operational costs, and potential system downtime are not considered in the production estimates.
     11. The tool does not take into account local building codes, regulations, or grid connection policies that might impact the feasibility or cost of solar installations.
