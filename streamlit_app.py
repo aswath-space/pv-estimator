@@ -5,6 +5,15 @@ import matplotlib.pyplot as plt  # For plotting monthly production data
 import folium  # For creating interactive maps with satellite imagery
 import streamlit as st # Core Streamlit library for creating web apps
 from streamlit_folium import st_folium
+import numpy as np
+from financial import (
+    calculate_irr,
+    estimate_initial_cost,
+    estimate_annual_savings,
+    DEFAULT_COST_PER_KW,
+    DEFAULT_ELECTRICITY_PRICE,
+    DEFAULT_LIFETIME_YEARS,
+)
 
 #Title section 
 st.title('PV Production Estimator') 
@@ -147,9 +156,11 @@ def get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak
     df_monthly = pd.DataFrame(index=range(1, 13))
     df_monthly.index.name = 'Month'
     total_annual_production = 0
+    total_capacity_kw = 0
 
     for i, array_info in enumerate(panels_info, start=1):
         peak_power = array_info['panels'] * panel_watt_peak / 1000  # Convert to kWp
+        total_capacity_kw += peak_power
         tilt = array_info['pitch']
         azimuth = array_info['azimuth']
         
@@ -203,8 +214,31 @@ def get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak
     # Displaying the grand total annual production
     #st.write(f"Grand Total Annual Production: {total_annual_production} kWh")
     
-    # Note: Returning the DataFrame and total annual production is optional unless needed for further processing
-    return df_monthly_transposed, total_annual_production
+    # Note: Returning the DataFrame, total annual production and system capacity
+    return df_monthly_transposed, total_annual_production, total_capacity_kw
+
+
+def show_financial_analysis(total_capacity_kw, annual_production_kwh):
+    """Display a simple IRR calculation using market average assumptions."""
+    st.subheader("Financial Analysis (IRR)")
+    cost_per_kw = st.number_input(
+        "Cost per kWp (USD)", min_value=0.0, value=float(DEFAULT_COST_PER_KW)
+    )
+    electricity_price = st.number_input(
+        "Electricity price (USD/kWh)", min_value=0.0, value=float(DEFAULT_ELECTRICITY_PRICE)
+    )
+    lifetime_years = st.number_input(
+        "System lifetime (years)", min_value=1, value=DEFAULT_LIFETIME_YEARS
+    )
+
+    initial_cost = estimate_initial_cost(total_capacity_kw, cost_per_kw)
+    annual_savings = estimate_annual_savings(annual_production_kwh, electricity_price)
+    irr = calculate_irr(initial_cost, annual_savings, lifetime_years)
+
+    if irr is not None and not np.isnan(irr):
+        st.metric("Estimated IRR", f"{irr*100:.2f}%")
+    else:
+        st.write("IRR could not be calculated with the provided values.")
 
 
 # Main execution block
@@ -221,10 +255,12 @@ if lat is not None and lon is not None:
 
     st.header('Production Estimates')
     if st.button('Calculate PV Production') and panels_info:
-        monthly_production_comparison, grand_total_annual_production = get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak)
+        monthly_production_comparison, grand_total_annual_production, total_capacity_kw = get_pv_production_for_multiple_arrays(lat, lon, panels_info, panel_watt_peak)
         if monthly_production_comparison is not None:
             st.dataframe(monthly_production_comparison)
             st.metric(label="Grand Total Annual Production", value=f"{grand_total_annual_production} kWh")
+            with st.expander("Financial Analysis"):
+                show_financial_analysis(total_capacity_kw, grand_total_annual_production)
         else:
             st.error("Failed to calculate PV production.")
 else:
